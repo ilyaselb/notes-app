@@ -9,6 +9,7 @@ const App = () => {
   const [notes, setNotes] = useState([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     fetchNotes();
@@ -23,26 +24,54 @@ const App = () => {
     }
   };
 
-  const handleCreateNote = async (e) => {
+
+  const handleDeleteNote = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/${id}`);
+      fetchNotes();
+    } catch (error) {
+      console.error("Error deleting note:", error);
+    }
+  };
+
+  const handleSaveNote = async (e) => {
     e.preventDefault();
-    if (!title || !content) return;
+    if (!title || !content);
 
     try {
-      await axios.post(API_URL, { title, content });
+      if (editingId) {
+        await axios.put(`${API_URL}/${editingId}`, { title, content });
+      } else {
+        await axios.post(API_URL, { title, content });
+      }
+
       setTitle('');
       setContent('');
+      setEditingId(null);
       fetchNotes();
     } catch (err) {
-      console.error("error: failed to create note", err);
+      console.error("error: failed to save note", err);
     }
+  }
+
+  const handleEditClick = (note) => {
+    setTitle(note.title);
+    setContent(note.content);
+    setEditingId(note._id.$oid);
+  };
+
+  const handleCancelEdit = () => {
+    setTitle('');
+    setContent('');
+    setEditingId(null);
   };
 
   return (
     <div style={{ display: 'flex', padding: '20px', gap: '40px' }}>
 
       <div style={{ flex: 1 }}>
-        <h2>Create a New Note</h2>
-        <form onSubmit={handleCreateNote} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <h2>{editingId ? "Edit Note" : "Create a New Note"}</h2>
+        <form onSubmit={handleSaveNote} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <input
             type="text"
             placeholder="Note Title"
@@ -50,12 +79,21 @@ const App = () => {
             onChange={(e) => setTitle(e.target.value)}
           />
           <textarea
-            placeholder="Write your markdown here... e.g., **Bold**, *Italic*, # Header"
+            placeholder="Write your markdown here..."
             rows="10"
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
-          <button type="submit">Save Note</button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button type="submit" style={{ flex: 1 }}>
+              {editingId ? "Update Note" : "Save Note"}
+            </button>
+            {editingId && (
+              <button type="button" onClick={handleCancelEdit} style={{ flex: 1, backgroundColor: '#666', color: 'white' }}>
+                Cancel
+              </button>
+            )}
+          </div>
         </form>
       </div>
 
@@ -63,15 +101,34 @@ const App = () => {
         <h2>Your Notes</h2>
         {notes.length === 0 ? <p>No notes yet. Create one!</p> : null}
 
-        {notes.map((note, index) => (
-          <div key={_} style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '15px', borderRadius: '5px' }}>
-            <h3>{note.title}</h3>
-            <hr />
-            <ReactMarkdown>{note.content}</ReactMarkdown>
-          </div>
-        ))}
-      </div>
+        {notes.map((note) => {
+          const noteId = note._id.$oid;
 
+          return (
+            <div key={noteId} style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '15px', borderRadius: '5px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ margin: 0 }}>{note.title}</h3>
+                <div>
+                  <button
+                    onClick={() => handleEditClick(note)}
+                    style={{ backgroundColor: '#4da6ff', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteNote(noteId)}
+                    style={{ backgroundColor: '#ff4d4d', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+              <hr />
+              <ReactMarkdown>{note.content}</ReactMarkdown>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 
