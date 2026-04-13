@@ -3,7 +3,7 @@ import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import './App.css';
 
-const API_URL = `${import.meta.env.VITE_API_URL}/notes`;
+const API_URL = import.meta.env.VITE_API_URL;
 
 const App = () => {
   const [notes, setNotes] = useState([]);
