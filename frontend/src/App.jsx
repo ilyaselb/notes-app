@@ -3,7 +3,7 @@ import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import './App.css';
 
-const API_URL = "http://localhost:3000/notes";
+const API_URL = "http://0.0.0.0:3000/notes";
 
 const App = () => {
   const [notes, setNotes] = useState([]);
@@ -36,7 +36,7 @@ const App = () => {
 
   const handleSaveNote = async (e) => {
     e.preventDefault();
-    if (!title || !content);
+    if (!title || !content) return;
 
     try {
       if (editingId) {
@@ -55,9 +55,10 @@ const App = () => {
   }
 
   const handleEditClick = (note) => {
+    const noteId = typeof note._id === "string" ? note._id : note._id.$oid;
     setTitle(note.title);
     setContent(note.content);
-    setEditingId(note._id.$oid);
+    setEditingId(noteId);
   };
 
   const handleCancelEdit = () => {
