@@ -8,7 +8,7 @@ use std::{env, net::SocketAddr};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Load the .env file
+    // Load the .env file for Mongo DB connection
     dotenv::dotenv().ok();
 
     let client_uri = env::var("MONGODB_URI").expect("Mongodb URI must be provided.");
