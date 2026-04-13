@@ -2,20 +2,39 @@ name: Deploy Backend to EC2
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - "backend/**"
+    branches: [main]
+    paths: ["backend/**"]
 
 jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build & push image
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/backend:latest ./backend
+          docker push ghcr.io/${{ github.repository }}/backend:latest
+
   deploy:
+    needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Execute Deployment Script via SSH
+      - name: SSH & deploy on EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            /home/ubuntu/deploy.sh
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker pull ghcr.io/${{ github.repository }}/backend:latest
+            docker stop backend || true
+            docker rm backend || true
+            docker run -d --name backend -p 3000:3000 --restart always ghcr.io/${{ github.repository }}/backend:latest
