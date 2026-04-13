@@ -37,4 +37,6 @@ jobs:
             docker pull ghcr.io/${{ github.repository }}/backend:latest
             docker stop backend || true
             docker rm backend || true
-            docker run -d --name backend -p 3000:3000 --restart always ghcr.io/${{ github.repository }}/backend:latest
+            docker run -d --name backend -p 3000:3000 --restart always \
+              -e MONGODB_URI=${{ secrets.MONGODB_URI }} \
+              ghcr.io/${{ github.repository }}/backend:latest
