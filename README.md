@@ -7,7 +7,7 @@ This project is a full-stack web application designed for notes management. Deve
 
 Below is the high-level architecture of the application's cloud deployment and CI/CD pipeline:
 
-![Cloud Architecture](./cloud_arch.png)
+![Cloud Architecture](./img/cloud_arch.png)
 
 ### Infrastructure Breakdown
 
