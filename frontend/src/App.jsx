@@ -51,7 +51,7 @@ const App = () => {
     } catch (err) {
       console.error("error: failed to save note", err);
     }
-  }
+  };
 
   const handleEditClick = (note) => {
     const noteId = typeof note._id === "string"
@@ -70,99 +70,98 @@ const App = () => {
   };
 
   return (
-    <div className="app-container">
+    <>
+      <header className="retro-header">
+        <span className="logo">// NOTE.EXE</span>
+        <span className="status">● SYSTEM ONLINE</span>
+      </header>
 
-      <div className="editor-panel">
-        <h2>{editingId ? "Edit Note" : "Create a New Note"}</h2>
+      <div className="app-container">
 
-        <form onSubmit={handleSaveNote} className="note-form">
+        <div className="editor-panel">
+          <h2>{editingId ? "[ EDIT_NOTE ]" : "[ NEW_NOTE ]"}</h2>
 
-          <input
-            type="text"
-            placeholder="Note Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+          <form onSubmit={handleSaveNote} className="note-form">
 
-          <textarea
-            placeholder="Write your markdown here..."
-            rows="10"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
+            <input
+              type="text"
+              placeholder="> Enter title..."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
 
-          <div className="button-group">
+            <textarea
+              placeholder="> Write markdown here..."
+              rows="10"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
 
-            <button type="submit" className="primary-btn">
-              {editingId ? "Update Note" : "Save Note"}
-            </button>
-
-            {editingId && (
-              <button
-                type="button"
-                onClick={handleCancelEdit}
-                className="secondary-btn"
-              >
-                Cancel
+            <div className="button-group">
+              <button type="submit" className="primary-btn">
+                {editingId ? "[ UPDATE ]" : "[ SAVE ]"}
               </button>
-            )}
 
-          </div>
-        </form>
-      </div>
-
-      <div className="notes-panel">
-        <h2>Your Notes</h2>
-
-        {notes.length === 0 && (
-          <p className="empty-text">
-            No notes yet. Create one!
-          </p>
-        )}
-
-        {notes.map((note) => {
-          const noteId = note._id.$oid;
-
-          return (
-            <div key={noteId} className="note-card">
-
-              <div className="note-header">
-
-                <h3>{note.title}</h3>
-
-                <div className="note-actions">
-
-                  <button
-                    onClick={() => handleEditClick(note)}
-                    className="edit-btn"
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    onClick={() => handleDeleteNote(noteId)}
-                    className="delete-btn"
-                  >
-                    Delete
-                  </button>
-
-                </div>
-              </div>
-
-              <hr />
-
-              <div className="markdown-content">
-                <ReactMarkdown>
-                  {note.content}
-                </ReactMarkdown>
-              </div>
-
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="secondary-btn"
+                >
+                  [ CANCEL ]
+                </button>
+              )}
             </div>
-          );
-        })}
-      </div>
 
-    </div>
+          </form>
+        </div>
+
+        <div className="notes-panel">
+          <h2>[ YOUR_NOTES ]</h2>
+
+          {notes.length === 0 && (
+            <p className="empty-text">No notes found. Create one.</p>
+          )}
+
+          {notes.map((note) => {
+            const noteId = typeof note._id === "string"
+              ? note._id
+              : note._id.$oid;
+
+            return (
+              <div key={noteId} className="note-card">
+
+                <div className="note-header">
+                  <h3>{note.title}</h3>
+                  <div className="note-actions">
+                    <button
+                      onClick={() => handleEditClick(note)}
+                      className="edit-btn"
+                    >
+                      EDIT
+                    </button>
+                    <button
+                      onClick={() => handleDeleteNote(noteId)}
+                      className="delete-btn"
+                    >
+                      DEL
+                    </button>
+                  </div>
+                </div>
+
+                <hr />
+
+                <div className="markdown-content">
+                  <ReactMarkdown>{note.content}</ReactMarkdown>
+                </div>
+
+              </div>
+            );
+          })}
+        </div>
+
+      </div>
+    </>
   );
 };
 
