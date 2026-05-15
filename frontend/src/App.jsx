@@ -24,7 +24,6 @@ const App = () => {
     }
   };
 
-
   const handleDeleteNote = async (id) => {
     try {
       await axios.delete(`${API_URL}/${id}`);
@@ -55,7 +54,10 @@ const App = () => {
   }
 
   const handleEditClick = (note) => {
-    const noteId = typeof note._id === "string" ? note._id : note._id.$oid;
+    const noteId = typeof note._id === "string"
+      ? note._id
+      : note._id.$oid;
+
     setTitle(note.title);
     setContent(note.content);
     setEditingId(noteId);
@@ -68,70 +70,100 @@ const App = () => {
   };
 
   return (
-    <div style={{ display: 'flex', padding: '20px', gap: '40px' }}>
+    <div className="app-container">
 
-      <div style={{ flex: 1 }}>
+      <div className="editor-panel">
         <h2>{editingId ? "Edit Note" : "Create a New Note"}</h2>
-        <form onSubmit={handleSaveNote} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+
+        <form onSubmit={handleSaveNote} className="note-form">
+
           <input
             type="text"
             placeholder="Note Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
+
           <textarea
             placeholder="Write your markdown here..."
             rows="10"
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button type="submit" style={{ flex: 1 }}>
+
+          <div className="button-group">
+
+            <button type="submit" className="primary-btn">
               {editingId ? "Update Note" : "Save Note"}
             </button>
+
             {editingId && (
-              <button type="button" onClick={handleCancelEdit} style={{ flex: 1, backgroundColor: '#666', color: 'white' }}>
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="secondary-btn"
+              >
                 Cancel
               </button>
             )}
+
           </div>
         </form>
       </div>
 
-      <div style={{ flex: 1 }}>
+      <div className="notes-panel">
         <h2>Your Notes</h2>
-        {notes.length === 0 ? <p>No notes yet. Create one!</p> : null}
+
+        {notes.length === 0 && (
+          <p className="empty-text">
+            No notes yet. Create one!
+          </p>
+        )}
 
         {notes.map((note) => {
           const noteId = note._id.$oid;
 
           return (
-            <div key={noteId} style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '15px', borderRadius: '5px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ margin: 0 }}>{note.title}</h3>
-                <div>
+            <div key={noteId} className="note-card">
+
+              <div className="note-header">
+
+                <h3>{note.title}</h3>
+
+                <div className="note-actions">
+
                   <button
                     onClick={() => handleEditClick(note)}
-                    style={{ backgroundColor: '#4da6ff', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer', marginRight: '5px' }}
+                    className="edit-btn"
                   >
                     Edit
                   </button>
+
                   <button
                     onClick={() => handleDeleteNote(noteId)}
-                    style={{ backgroundColor: '#ff4d4d', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}
+                    className="delete-btn"
                   >
                     Delete
                   </button>
+
                 </div>
               </div>
+
               <hr />
-              <ReactMarkdown>{note.content}</ReactMarkdown>
+
+              <div className="markdown-content">
+                <ReactMarkdown>
+                  {note.content}
+                </ReactMarkdown>
+              </div>
+
             </div>
           );
         })}
       </div>
+
     </div>
   );
+};
 
-}
 export default App;
